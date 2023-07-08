@@ -46,15 +46,15 @@ public class TerminalController : MonoBehaviour
 
   private TS ts;
 
-  private QTE qteController;
+  private GameController gameController;
   private MapInterface mapInterface;
-  private string home_text_feed = "";
+  private string home_text_feed;
   // Start is called before the first frame update
   void Start() { 
     ts = TS.HOME;
     home_text_feed = "";
     mapInterface = new MapInterface();
-    qteController = new QTE();
+    gameControler = new GameController();
 
   }
 
@@ -62,7 +62,7 @@ public class TerminalController : MonoBehaviour
   void Update() { 
     switch (ts) {
       case TS.HOME: 
-        TerminalTMP.text = getHomeText();
+        TerminalTMP.text = this.getHomeText();
         break; 
       case TS.MAP_HOVER:
         TerminalTMP.text = getHoverText(MapInterface.Tile.DOOR);
@@ -72,29 +72,29 @@ public class TerminalController : MonoBehaviour
         break;
       case TS.MINIGAME_INFO:
       
-        TerminalTMP.text = QTE.info();
+        TerminalTMP.text = GameController.info();
         break;
       case TS.MINIGAME_PLAY:
-        switch (qteController.state) {
-          case QTE.State.OFF:
-            qteController.start(4,8);
-            TerminalTMP.text = QTE.info();
+        switch (gameController.state) {
+          case GameController.State.OFF:
+            gameController.start(4,8);
+            TerminalTMP.text = GameController.info();
             break;
-          case QTE.State.ON:
-            TerminalTMP.text = qteController.iterate();
+          case GameController.State.ON:
+            TerminalTMP.text = gameController.iterate();
             break;
-          case QTE.State.LOST:
+          case GameController.State.LOST:
             ts = TS.MINIGAME_WRAPUP;
-            TerminalTMP.text = qteController.iterate();
+            TerminalTMP.text = gameController.iterate();
             break;
-          case QTE.State.WON:
+          case GameController.State.WON:
             ts = TS.MINIGAME_WRAPUP;
-            TerminalTMP.text = qteController.iterate();
+            TerminalTMP.text = gameController.iterate();
             break;
         }
         break;
       case TS.MINIGAME_WRAPUP:
-        TerminalTMP.text = qteController.iterate();
+        TerminalTMP.text = gameController.iterate();
         break;
     }
     
@@ -105,13 +105,12 @@ public class TerminalController : MonoBehaviour
 
 
 
-  
-  string getHomeText() {
-    string DEFAULT_HOME_TEXT = @"
+  string DEFAULT_HOME_TEXT = @"
 You're the Guy In The Chair. Your bud is on a heist in a space ship, but he's gonna need your help!
 
 Beat some minigames and help him win. You got this!
 ";
+  string getHomeText() {
     return DEFAULT_HOME_TEXT + home_text_feed;
   }
 
