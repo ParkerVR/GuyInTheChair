@@ -48,7 +48,7 @@ public class TerminalController : MonoBehaviour
 
   private QTE qteController;
   private MapInterface mapInterface;
-  private string home_text_feed;
+  private string home_text_feed = "";
   // Start is called before the first frame update
   void Start() { 
     ts = TS.HOME;
@@ -62,7 +62,7 @@ public class TerminalController : MonoBehaviour
   void Update() { 
     switch (ts) {
       case TS.HOME: 
-        TerminalTMP.text = this.getHomeText();
+        TerminalTMP.text = getHomeText();
         break; 
       case TS.MAP_HOVER:
         TerminalTMP.text = getHoverText(MapInterface.Tile.DOOR);
@@ -105,12 +105,13 @@ public class TerminalController : MonoBehaviour
 
 
 
-  string DEFAULT_HOME_TEXT = @"
+  
+  string getHomeText() {
+    string DEFAULT_HOME_TEXT = @"
 You're the Guy In The Chair. Your bud is on a heist in a space ship, but he's gonna need your help!
 
 Beat some minigames and help him win. You got this!
 ";
-  string getHomeText() {
     return DEFAULT_HOME_TEXT + home_text_feed;
   }
 
