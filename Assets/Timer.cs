@@ -54,7 +54,7 @@ public class Timer {
   }
 
   // max drift percentage is .50 (50%)
-  private float calculateDriftPercentage() {
+  public float calculateDriftPercentage() {
     float driftSeconds = lastBeatTime-beatLength*beatSum;
     float driftPercentage = driftSeconds / beatLength;
     if (driftPercentage < 0.5) {
@@ -63,7 +63,7 @@ public class Timer {
       return 1-driftPercentage;
     }
   }
-  private int closestBeatNum(float timeNow){
+  public int closestBeatNum(float timeNow){
     int current = beatSum;
     float threshold = lastBeatTime + (beatLength / 2);
     if (timeTotal > threshold) {

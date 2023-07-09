@@ -4,26 +4,25 @@ using UnityEngine;
 
 public static class randomActionGenerator{
 
-public static string getDDRAction(){
+public static DDR.Direction getDDRAction(){
   int minInclusive = 0;
   int maxExclusive = 4;
 
   int num = Random.Range(minInclusive, maxExclusive); 
   if(num == 0){
-    return "Up";
+    return DDR.Direction.UP;
   } else if(num == 1){
-    return "Down";
+    return DDR.Direction.DOWN;
   } else if(num == 2){
-    return "Left";
+    return DDR.Direction.LEFT;
   } else {
-    return "Right";
+    return DDR.Direction.RIGHT;
   }
-  
 
 }
 
 public static int getSimonSaysAction(int numberOfButtons){
-  return (Random.Range(0, numberOfButtons)); 
+  return (Random.Range(1, numberOfButtons+1)); 
 }
 
 

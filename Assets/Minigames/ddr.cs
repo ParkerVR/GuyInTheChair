@@ -8,50 +8,172 @@ public class DDR
     UP,
     DOWN,
     LEFT,
-    RIGHT
+    RIGHT,
+    NONE
   };
 
   public int numberOfBeats;
-  public List<(string, int)> actionQueue;
+  // List of actions by Beat
+
+  public List<Direction> actionQueue;
   //Plays simon says for the next x beats
-  public DDR(int NumberOfBeats){
-    numberOfBeats=NumberOfBeats;
-    actionQueue=new List<(string,int)>();
-  }
-  public void Update(ArrayList keypresses, int currentBeat){
-    //// SIMPLER VERSION ////
-    // More simple implementation to decrease penalties and not need to worry about debounce
 
-    // Check action queue and get all keys due on the current beat.  Check if the current input matches what is due
-    // If it matches exactly (e.g. only up and down pressed when up and down due), then yippee and drop from queue
-    // If it does not match exactly, apply a penalty
-    // If any were missed (due on an earlier beat), drop from queue and REE
+  // Hits sums acccuracies (1 is perfect, down to .5)
+  public float Hits;
+  public int Misses;
+  public int startBeat;
+  public int beatSum;
 
-    //// END SIMPLER VERSION ////
-
-    
-    // iterate through all actions in the queue
-
-    // if any are due this beat, compare to pressed keys
-    // flash green or something if hit on time and drop from queue
-
-    // if they don't match to anything due this do we want to compare against the ones due on the next beat? 
-    // If so, apply a minor penalty and drop them from the queue
-
-    // if any are due even later, apply a penalty for bad keypress but keep in queue
-
-    // if they are due on on earlier beat (missed), drop from queue and apply a penalty
-
-    // From the set timeline, add the string action and the "due" integer value
-    
-    foreach((string, int) actionPair in actionQueue){
-      if(actionPair.Item2 == currentBeat){
-        return;
-        // prefect
-      }
-
+  public DDR(int StartBeat, int BeatSum){
+    Hits = 0;
+    Misses = 0;
+    startBeat = StartBeat;
+    beatSum= BeatSum;
+    actionQueue=new List<Direction>();
+    // Add start buffer
+    for (int i = 0; i < 8; i++) {
+      actionQueue.Add(Direction.NONE);
     }
+    numberOfBeats=beatSum - startBeat;
+    // Generate entire action queue
+    for (int i = 8; i < numberOfBeats; i++) { 
+      int howManyButtonsRoll = Random.Range(0,2);
+      if (howManyButtonsRoll == 0) {
+        actionQueue.Add(Direction.NONE);
+      } else {
+        actionQueue.Add(randomActionGenerator.getDDRAction());
+      }
+    } 
   }
 
+  // Call this every frame
+  public string HitBeatProcess(string keypress, int currentBeat){
+    Direction dirThisBeat = GetBeatDirection(currentBeat + 1);
+    //Debug.Log(dirThisBeat);
+    if (dirThisBeat != Direction.NONE) {
+      if (keypress != "NO INPUT") {
+        //Debug.Log($"Direction: {dirThisBeat}, keyPress = {keypress}");
+        if (dirThisBeat == Direction.UP) {
+          if (keypress=="UpArrow") {
+            return "hit";
+          } else {return "miss";}
+        } else if (dirThisBeat == Direction.DOWN) {
+          if (keypress=="DownArrow") {
+            return "hit";
+          } else {return "miss";}
+        } else if (dirThisBeat == Direction.LEFT) {
+          if (keypress=="LeftArrow") {
+            return "hit";
+          } else {return "miss";}
+        } else if (dirThisBeat == Direction.RIGHT) {
+          if (keypress=="RightArrow") {
+            return "hit";
+          } else {return "miss";}
+        }
+      }
+    }
+    return "none";
+  }
+  
+  public Direction GetBeatDirection(int beat){
+    int beatIndex = beat - startBeat;
+    if (beatIndex < 0) {
+      return Direction.NONE;
+    }
+    if (beatIndex >= actionQueue.Count) {
+      return Direction.NONE;
+    }
+    return actionQueue[beatIndex];
+  }
 
+  // Render a grid with the correct inputs selected
+  public List<List<bool>> RenderDDR(int thisBeat){
+    int displayFuture = 4;
+    var retval = new List<List<bool>>();
+    
+    for (int i = 0; i < displayFuture; i++) {
+      Direction dir = GetBeatDirection(thisBeat+1+i);
+      if (dir == Direction.NONE){
+        List<bool> col = new List<bool>();
+        col.Add(false);
+        col.Add(false);
+        col.Add(false);
+        col.Add(false);
+        retval.Add(col);
+      } if (dir == Direction.UP){
+        List<bool> col = new List<bool>();
+        col.Add(true);
+        col.Add(false);
+        col.Add(false);
+        col.Add(false);
+        retval.Add(col);
+      } if (dir == Direction.LEFT){
+        List<bool> col = new List<bool>();
+        col.Add(false);
+        col.Add(true);
+        col.Add(false);
+        col.Add(false);
+        retval.Add(col);
+      } if (dir == Direction.RIGHT){
+        List<bool> col = new List<bool>();
+        col.Add(false);
+        col.Add(false);
+        col.Add(true);
+        col.Add(false);
+        retval.Add(col);
+      } if (dir == Direction.DOWN){
+        List<bool> col = new List<bool>();
+        col.Add(false);
+        col.Add(false);
+        col.Add(false);
+        col.Add(true);
+        retval.Add(col);
+      }
+    }
+    return retval;
+  }
+  public string RenderDDRString(int thisBeat){
+    List<List<bool>> grid = RenderDDR(thisBeat);
+
+    /*
+    U U U U  
+    L L L L 
+    R R R R
+    D D D D
+    ^
+    */
+    string finalString = "\n▼";
+    // loop over each letter (row)
+    for (int i = 0; i < 4; i++){
+      finalString += '\n';
+      
+      for (int j = 0; j < 4; j++) {
+        bool isThere = grid[j][i];
+        var displayChar = 'X';
+        switch(i) { 
+          case 0:
+            displayChar = 'U';
+            break;
+          case 1:
+            displayChar = 'L';
+            break;
+          case 2:
+            displayChar = 'R';
+            break;
+          case 3:
+            displayChar = 'D';
+            break;
+        }
+        
+        finalString += isThere ? displayChar : ' ';
+        finalString += ' ';
+
+      }
+      
+    }
+    finalString += "\n▲";
+    finalString += "";
+    return finalString;
+
+  }
 }

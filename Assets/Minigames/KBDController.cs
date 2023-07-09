@@ -5,29 +5,33 @@ using UnityEngine;
 public class KBDController
 {
 
-  public ArrayList keys_pressed;
+  public ArrayList keypresses;
 
   public string cachedKey = "NO INPUT"; 
   public string getMostRecentKey (){
-    if (keys_pressed.Count > 0) {
-      cachedKey = (string)(keys_pressed[0]);
+    if (keypresses.Count > 0) {
+      cachedKey = (string)(keypresses[0]);
     }
     return cachedKey;
   }
 
+  public void resetCache() {
+    cachedKey = "NO INPUT";
+  }
+
   // Update is called once per frame from the setlist
   public void Update() {
-    keys_pressed = new ArrayList();
+    keypresses = new ArrayList();
     foreach(KeyCode kcode in System.Enum.GetValues(typeof(KeyCode)))
     {
       if (Input.GetKeyDown(kcode))
-        keys_pressed.Add((kcode).ToString());
+        keypresses.Add((kcode).ToString());
     }
     if(Input.mouseScrollDelta.y > 0){
-      keys_pressed.Add("ScrollUp");
+      keypresses.Add("ScrollUp");
     }
     else if(Input.mouseScrollDelta.y < 0){
-      keys_pressed.Add("ScrollDown");
+      keypresses.Add("ScrollDown");
     }
   }
 
