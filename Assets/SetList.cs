@@ -42,19 +42,18 @@ public class SetList : MonoBehaviour
   // Start is called before the first frame update
   void Start() { 
     SetDataList = new List<SetData>();
-    SetDataList.Add(new SetData("HOME", 0, 16));
-    SetDataList.Add(new SetData("DDR", 16, 64));
-    SetDataList.Add(new SetData("TYPING", 64, 128));
-    SetDataList.Add(new SetData("SIMON", 128, 256));
-    SetDataList.Add(new SetData("DDR", 256, 320));
-    SetDataList.Add(new SetData("EQ", 320, 420));
+    SetDataList.Add(new SetData("HOME", 0, 8));
+    SetDataList.Add(new SetData("TYPING", 8, 64)); 
+    SetDataList.Add(new SetData("DDR", 64, 128));
+    SetDataList.Add(new SetData("SIMON", 128, 256)); // Great start timing , seems to run long? but maybe clicks
+    SetDataList.Add(new SetData("DDR", 256, 320)); // Great start timing
+    SetDataList.Add(new SetData("EQ", 320, 420)); // Great start timing
     SetDataList.Add(new SetData("ENCORE", 420, 450));
 
     currentSet = SetDataList[0];
     TerminalTMP.text = "";
     kbd = new KBDController();
     gameTimer = new Timer();
-    //TheSong.Play();
 
   }
 
@@ -68,11 +67,11 @@ public class SetList : MonoBehaviour
     if (gameTimer.beatSum < SetDataList[0].beatEnd) {
       TerminalTMP.text += "WELCOME TO THE VENUE. YOU WILL NOT GET THE FAME OF THE ROCK STARS TODAY, BUT LITTLE DOES THE CROWD KNOW HOW MUCH YOU CONTRIBUTE";
     } else if (gameTimer.beatSum < SetDataList[1].beatEnd) {
-      TerminalTMP.text += "Press your arrow keys to help the starts light up the dance floor!";
-    } else if (gameTimer.beatSum < SetDataList[2].beatEnd) {
       TerminalTMP.text += "TYPE ME!!"; // THIS ONE SHOULD WILL GET COMPLICATED
+    } else if (gameTimer.beatSum < SetDataList[2].beatEnd) {
+      TerminalTMP.text += "Press your arrow keys to help the starts light up the dance floor!";
     } else if (gameTimer.beatSum < SetDataList[3].beatEnd) {
-      TerminalTMP.text += "Use 1,2,3, and 4 to control the spotlights!";
+      TerminalTMP.text += "Use 1,2,3, and 4 to control the spotlights!"; 
     } else if (gameTimer.beatSum < SetDataList[4].beatEnd) { 
       TerminalTMP.text += "Let's hit the dance floor again";
     } else if (gameTimer.beatSum < SetDataList[5].beatEnd) {
