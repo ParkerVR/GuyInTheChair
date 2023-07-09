@@ -35,7 +35,8 @@ public class SetList : MonoBehaviour
 
   // Unity Object Imports
   [SerializeField] private TextMeshProUGUI TerminalTMP;
-
+  [SerializeField] private GameObject ddrUI;
+  [SerializeField] private GameObject simonUI;
   [SerializeField] private AudioSource TheSong;
 
 
@@ -43,17 +44,19 @@ public class SetList : MonoBehaviour
   void Start() { 
     SetDataList = new List<SetData>();
     SetDataList.Add(new SetData("HOME", 0, 8));
-    //SetDataList.Add(new SetData("TYPING", 8, 64)); // We should make this longer
-    //SetDataList.Add(new SetData("DDR", 64, 128));
-    //SetDataList.Add(new SetData("SIMON", 128, 256)); // Great start timing , seems to run long? but maybe clicks
+    SetDataList.Add(new SetData("TYPING", 8, 128)); // We should make this longer
+    SetDataList.Add(new SetData("DDR", 128, 192));
+    SetDataList.Add(new SetData("ENCORE",  192,420));
+    //SetDataList.Add(new SetData("SIMON", 192, 420)); // Great start timing , seems to run long? but maybe clicks
+    //SetDataList.Add(new SetData("ENCORE", 420, 450));
+    //SetDataList.Add(new SetData("TYPING", 8, 12)); // TEST TIMNIg
+    //SetDataList.Add(new SetData("DDR", 12, 48)); // TEST TIMING
+    //SetDataList.Add(new SetData("SIMON", 48, 256)); // TEST TIMING
+    //SetDataList.Add(new SetData("DDR", 256, 320)); // Great start timing
+    //SetDataList.Add(new SetData("EQ", 320, 420)); // Great start timing
 
-    SetDataList.Add(new SetData("TYPING", 8, 12)); // TEST TIMNIg
-    SetDataList.Add(new SetData("DDR", 12, 16)); // TEST TIMING
-    SetDataList.Add(new SetData("SIMON", 16, 256)); // TEST TIMING
-    SetDataList.Add(new SetData("DDR", 256, 320)); // Great start timing
-    SetDataList.Add(new SetData("EQ", 320, 420)); // Great start timing
-    SetDataList.Add(new SetData("ENCORE", 420, 450));
-
+    DDR.disableDDR();
+    
     currentSet = SetDataList[0];
     TerminalTMP.text = "";
     kbd = new KBDController();
@@ -66,10 +69,14 @@ public class SetList : MonoBehaviour
   public Typer typerGame;
 
   public SimonSays SSGame;
+
+
   public bool isCurrentBeatLive; // true if input still allowed this beat
 
   public string cachedSimonString;
- 
+  public int gotAHitIterator;
+
+  public List<string> gotAHitWords;
   // Update is called once per frame
   void Update() { 
     gameTimer.iterateTimer();
@@ -78,7 +85,7 @@ public class SetList : MonoBehaviour
 
     // SET TERMINAL TEXT 
     if (gameTimer.beatSum < SetDataList[0].beatEnd) {
-      TerminalTMP.text = "WELCOME TO THE VENUE. YOU WILL NOT GET THE FAME OF THE ROCK STARS TODAY, BUT LITTLE DOES THE CROWD KNOW HOW MUCH YOU CONTRIBUTE";
+      TerminalTMP.text = "You are working as an event manager at the mixing table to keep the show afloat.\n\n\n";
     } else if (gameTimer.beatSum < SetDataList[1].beatEnd) {
       if (gameTimer.wasLastFrameBeat){
         if (isCurrentBeatLive == false) {
@@ -104,48 +111,56 @@ public class SetList : MonoBehaviour
     } else if (gameTimer.beatSum < SetDataList[2].beatEnd) {
       // DDR MINIGAME
       if(currentSet != SetDataList[2]){
-        currentSet = SetDataList[2];
         ddrGame = new DDR(SetDataList[2].beatStart, SetDataList[2].beatEnd);
-      }
+        currentSet = SetDataList[2];
+        gotAHitIterator = 0;
+        gotAHitWords = new List<string> {"Arrow keys to scratch!", "Great!", "Keep it up!", "On fire!", "I love this song!", "Scratch that record!", "Oh yeah.", "Love it!", "Keep going!", "Awesomesauce", "blast off!!", "Keep it poppin'", "Noice", "You're a Hero!!!"};
+      } 
+      
       if(currentSet == SetDataList[2]) {
-        // Proocess on new beat start
+        // Process on new beat start
         if (gameTimer.wasLastFrameBeat){
           if (isCurrentBeatLive == false) {
             ddrGame.Misses += 1;
           }
-          isCurrentBeatLive = true;
+          //isCurrentBeatLive = true;
           kbd.resetCache();
         }
-        TerminalTMP.text = "Press your arrow keys to help the starts light up the dance floor!\n";
-    
-        if (isCurrentBeatLive) {
+        
+        //if (isCurrentBeatLive) {
+          Debug.Log($"Making Hit Process with {kbd.getMostRecentKey()} and {gameTimer.beatSum}");
           string hitBeatProcess = ddrGame.HitBeatProcess(kbd.getMostRecentKey(), gameTimer.beatSum);
           if (hitBeatProcess != "none") {
             Debug.Log(hitBeatProcess);
           }
-          TerminalTMP.text += hitBeatProcess;
+          //TerminalTMP.text += hitBeatProcess;
           if (hitBeatProcess == "hit") {
             ddrGame.Hits += 1-gameTimer.calculateDriftPercentage();
             Debug.Log(1-gameTimer.calculateDriftPercentage());
             isCurrentBeatLive = false;
+            gotAHitIterator = Random.Range(0,gotAHitWords.Count);
           } if (hitBeatProcess == "miss") {
             ddrGame.Misses += 1;
             isCurrentBeatLive = false;
           }
 
-        }
+        //}
         
-        TerminalTMP.text += "CurrentDirectionToHit:\n";
-        TerminalTMP.text += ddrGame.GetBeatDirection(gameTimer.beatSum);
-        TerminalTMP.text += ddrGame.RenderDDRString(gameTimer.beatSum);
-        TerminalTMP.text += "LastKeypress:\n";
-        TerminalTMP.text += kbd.getMostRecentKey();
+        //TerminalTMP.text += "CurrentDirectionToHit:\n";
+        //TerminalTMP.text += ddrGame.GetBeatDirection(gameTimer.beatSum);
+        ddrGame.RenderDDRArrows(gameTimer.beatSum);
+        Debug.Log(ddrGame.RenderDDRString(gameTimer.beatSum));
+        //TerminalTMP.text += "LastKeypress:\n";
+        //TerminalTMP.text += kbd.getMostRecentKey();
+        TerminalTMP.text = $"{gotAHitWords[gotAHitIterator]}\n\n\n\n\n";
+
       }
-    } else if (gameTimer.beatSum < SetDataList[3].beatEnd) {
+    } /*else if (gameTimer.beatSum < SetDataList[3].beatEnd) {
       // SIMON SAYS
       //init
       if(currentSet != SetDataList[3]){
         currentSet = SetDataList[3];
+        DDR.disableDDR();
         isCurrentBeatLive = true;
         cachedSimonString = "";
         SSGame = new SimonSays(SetDataList[3].beatStart, SetDataList[3].beatEnd);
@@ -178,27 +193,20 @@ public class SetList : MonoBehaviour
       TerminalTMP.text += '\n';
       TerminalTMP.text += SSGame.Hits.ToString();
 
-    } else if (gameTimer.beatSum < SetDataList[4].beatEnd) { 
-      TerminalTMP.text = "Let's hit the dance floor again";
-      if(currentSet != SetDataList[4]){
-        currentSet = SetDataList[4];
-      }
-    } else if (gameTimer.beatSum < SetDataList[5].beatEnd) {
-      TerminalTMP.text = "Move the EQ with your scroll wheel to meet the vibes and close out";
-      if(currentSet != SetDataList[5]){
-        currentSet = SetDataList[5];
-      }
-    } else if (gameTimer.beatSum < SetDataList[6].beatEnd) {
-      TerminalTMP.text = "Comment on Itch if you want an encore!";
-      if(currentSet != SetDataList[6]){
-        currentSet = SetDataList[6];
+    }*/ else if (gameTimer.beatSum < SetDataList[3].beatEnd) {
+      DDR.disableDDR();
+
+      TerminalTMP.text = "Comment on Itch if you want an encore\n\n\n\n\n!";
+      if(currentSet != SetDataList[3]){
+        currentSet = SetDataList[3];
       }
     }
-    
+    /* BEAT DEBUG TOOLS
     TerminalTMP.text += '\n';
     TerminalTMP.text += gameTimer.beatSum;
     TerminalTMP.text += '\n';
     TerminalTMP.text += gameTimer.beatLength;
+    */
   }
 }
 

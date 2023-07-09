@@ -14,7 +14,7 @@ public class Typer {
   private const int TOTAL_LETTER_COUNT = 112;
   // size of the (sliding) text shown on screen at a given time, e.g. in AB[CDE]FG... -> ABC[DEF]GH..., [CDE] and [DEF] are the windows (of size 3)
   private const int TYPER_WINDOW_SIZE = 15;
-  public string TEXT_WHITESPACE_BUFFER;
+  public string TEXT_blackSPACE_BUFFER;
 
   private int typerWordsCursor;
   private int localCurrentBeat;
@@ -31,8 +31,8 @@ public class Typer {
     localCurrentBeat = initialBeat;
     cursorState = CursorState.WAITING;
     typerWordsCursor = 7;
-    TEXT_WHITESPACE_BUFFER = new string (' ', TYPER_WINDOW_SIZE);
-    typerWords = TEXT_WHITESPACE_BUFFER + "ATTENTION CONCERTGOERS THERE IS A WILD CHIMPANZEE ON THE LOOSE INSIDE THE CONCERT VENUE PLEASE HEAD TO THE NEAREST EXIT IMMEDIATELY." + TEXT_WHITESPACE_BUFFER;
+    TEXT_blackSPACE_BUFFER = new string (' ', TYPER_WINDOW_SIZE);
+    typerWords = TEXT_blackSPACE_BUFFER + "ATTENTION CONCERTGOERS THERE IS A WILD CHIMPANZEE ON THE LOOSE INSIDE THE CONCERT VENUE PLEASE HEAD TO THE NEAREST EXIT IMMEDIATELY." + TEXT_blackSPACE_BUFFER;
 
   }
 
@@ -60,19 +60,19 @@ public class Typer {
     
     string cursorColorStr;
     if (cursorState == CursorState.WAITING) {
-      cursorColorStr = "white";
+      cursorColorStr = "black";
     } else if (cursorState == CursorState.CORRECT) {
       cursorColorStr = "#00FFFF";
     } else {
       cursorColorStr = "red";
     }
     string cursorLetter = "<u><color=" + cursorColorStr + ">" + typerWords[typerWordsCursor] + "</color></u>";
-    // Letters in the window to the right of the midpoint (including it), to color white.
-    string incomingLetters = "<color=white>" + typerWords.Substring(typerWordsCursor+1, 7) + "</color>";
+    // Letters in the window to the right of the midpoint (including it), to color black.
+    string incomingLetters = "<color=black>" + typerWords.Substring(typerWordsCursor+1, 7) + "</color>";
 
     string header = "==      ▼       ==";
     string window = "| " + completedLetters + cursorLetter + incomingLetters + " |";
-    string footer = "==      ▲       ==";
+    string footer = "==      ▲       ==\n\nType along to the beat!\n";
 
     return new List<string> {
       header,

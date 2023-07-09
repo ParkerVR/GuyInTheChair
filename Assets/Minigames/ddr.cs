@@ -12,6 +12,7 @@ public class DDR
     NONE
   };
 
+  
   public int numberOfBeats;
   // List of actions by Beat
 
@@ -25,15 +26,15 @@ public class DDR
   public int beatSum;
 
   public DDR(int StartBeat, int BeatSum){
+    actionQueue=new List<Direction>();
+    for (int i = 0; i < 8; i++) {
+      actionQueue.Add(Direction.NONE);
+    }
+    enableArrowGuides();
     Hits = 0;
     Misses = 0;
     startBeat = StartBeat;
     beatSum= BeatSum;
-    actionQueue=new List<Direction>();
-    // Add start buffer
-    for (int i = 0; i < 8; i++) {
-      actionQueue.Add(Direction.NONE);
-    }
     numberOfBeats=beatSum - startBeat;
     // Generate entire action queue
     for (int i = 8; i < numberOfBeats; i++) { 
@@ -46,13 +47,34 @@ public class DDR
     } 
   }
 
+  public static void enableArrowGuides() {
+    var target = GameObject.FindGameObjectWithTag("ddr").GetComponent<Transform>();
+    for (int i = 0; i < 4; i++) {
+      var arrow = target.transform.GetChild(i);
+      var arrowObject = arrow.GetChild(4).gameObject;
+      var arrowComponent = arrowObject.GetComponent<SpriteRenderer>();
+      arrowComponent.color = new Color(255,114,225);
+    }
+  }
+  public static void disableDDR(){
+    var target = GameObject.FindGameObjectWithTag("ddr").GetComponent<Transform>();
+    for (int i = 0; i < 4; i++) {
+      var arrow = target.transform.GetChild(i);
+      for (int j = 0; j < 5; j++) {
+        var arrowObject = arrow.GetChild(j).gameObject;
+        var arrowComponent = arrowObject.GetComponent<SpriteRenderer>();
+        arrowComponent.color = Color.clear;
+      }
+    }
+  }
+
   // Call this every frame
   public string HitBeatProcess(string keypress, int currentBeat){
-    Direction dirThisBeat = GetBeatDirection(currentBeat + 1);
-    //Debug.Log(dirThisBeat);
+    Direction dirThisBeat = GetBeatDirection(currentBeat+1);
+    Debug.Log(dirThisBeat);
     if (dirThisBeat != Direction.NONE) {
       if (keypress != "NO INPUT") {
-        //Debug.Log($"Direction: {dirThisBeat}, keyPress = {keypress}");
+        Debug.Log($"Direction: {dirThisBeat}, keyPress = {keypress}");
         if (dirThisBeat == Direction.UP) {
           if (keypress=="UpArrow") {
             return "hit";
@@ -76,13 +98,16 @@ public class DDR
   }
   
   public Direction GetBeatDirection(int beat){
+    
     int beatIndex = beat - startBeat;
+    Debug.Log(beatIndex);
     if (beatIndex < 0) {
       return Direction.NONE;
     }
     if (beatIndex >= actionQueue.Count) {
       return Direction.NONE;
     }
+    
     return actionQueue[beatIndex];
   }
 
@@ -132,6 +157,31 @@ public class DDR
     }
     return retval;
   }
+
+  public void RenderDDRArrows(int thisBeat){
+    List<List<bool>> grid = RenderDDR(thisBeat);
+    disableDDR();
+    enableArrowGuides();
+
+    var target = GameObject.FindGameObjectWithTag("ddr").GetComponent<Transform>();
+
+    // loop over each arrow 
+    for (int i = 0; i < 4; i++){
+      var arrow = target.transform.GetChild(i);
+
+      // Go into their time beats
+      for (int j = 0; j < 4; j++) {
+        // Individual arrow pieces
+        var arrowObject = arrow.GetChild(j).gameObject;
+        var arrowComponent = arrowObject.GetComponent<SpriteRenderer>();
+
+        if (grid[j][i]) {
+          arrowComponent.color = Color.white;
+        }
+      }
+    }
+  }
+
   public string RenderDDRString(int thisBeat){
     List<List<bool>> grid = RenderDDR(thisBeat);
 
