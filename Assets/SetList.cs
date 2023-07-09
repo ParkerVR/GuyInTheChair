@@ -8,10 +8,10 @@ using TMPro;
 
 public class SetData{
   public string name;
-  public float beatStart;
-  public float beatEnd;
+  public int beatStart;
+  public int beatEnd;
   public object minigame;
-  public SetData(string Name, float BeatStart, float BeatEnd) {
+  public SetData(string Name, int BeatStart, int BeatEnd) {
     name = Name;
     beatStart = BeatStart;
     beatEnd = BeatEnd;
@@ -51,42 +51,39 @@ public class SetList : MonoBehaviour
     SetDataList.Add(new SetData("ENCORE", 420, 450));
 
     currentSet = SetDataList[0];
-    TerminalTMP.text = "WELCOME TO THE VENUE. YOU WILL NOT GET THE FAME OF THE ROCK STARS TODAY, BUT LITTLE DOES THE CROWD KNOW HOW MUCH YOU CONTRIBUTE";
+    TerminalTMP.text = "";
     kbd = new KBDController();
     gameTimer = new Timer();
-    TheSong.Play();
+    //TheSong.Play();
 
   }
 
   // Update is called once per frame
   void Update() { 
+    gameTimer.iterateTimer();
     kbd.Update();
-    TerminalTMP.text = (string)(kbd.keys_pressed[0]);
+    TerminalTMP.text = kbd.getMostRecentKey();
 
-    /* Enable this after testing keyboard input
-    switch (currentSet) {
-
-      // SET TERMINAL TEXT 
-      case Set.HOME: 
-        TerminalTMP.text = "WELCOME TO THE VENUE. YOU WILL NOT GET THE FAME OF THE ROCK STARS TODAY, BUT LITTLE DOES THE CROWN KNOW HOW MUCH YOU CONTRIBUTE";
-        break; 
-      case Set.DDR:
-        TerminalTMP.text = "Press your arrow keys to help the starts light up the dance floor!";
-        break;
-      case Set.TYPING:
-        TerminalTMP.text = "TYPE ME!!"; // THIS ONE SHOULD BE MORE COMPLICATED
-        break;
-      case Set.SIMON:
-        TerminalTMP.text = "Use 1,2,3, and 4 to control the spotlights!";
-        break;
-      case Set.EQ:
-        TerminalTMP.text = "Move the EQ with your scroll wheel to meet the vibes and close out";
-        break;
-      case Set.ENCORE:
-        TerminalTMP.text = "Comment on Itch if you want an encore!";
-        break;
+    // SET TERMINAL TEXT 
+    if (gameTimer.beatSum < SetDataList[0].beatEnd) {
+      TerminalTMP.text += "WELCOME TO THE VENUE. YOU WILL NOT GET THE FAME OF THE ROCK STARS TODAY, BUT LITTLE DOES THE CROWD KNOW HOW MUCH YOU CONTRIBUTE";
+    } else if (gameTimer.beatSum < SetDataList[1].beatEnd) {
+      TerminalTMP.text += "Press your arrow keys to help the starts light up the dance floor!";
+    } else if (gameTimer.beatSum < SetDataList[2].beatEnd) {
+      TerminalTMP.text += "TYPE ME!!"; // THIS ONE SHOULD WILL GET COMPLICATED
+    } else if (gameTimer.beatSum < SetDataList[3].beatEnd) {
+      TerminalTMP.text += "Use 1,2,3, and 4 to control the spotlights!";
+    } else if (gameTimer.beatSum < SetDataList[4].beatEnd) { 
+      TerminalTMP.text += "Let's hit the dance floor again";
+    } else if (gameTimer.beatSum < SetDataList[5].beatEnd) {
+      TerminalTMP.text += "Move the EQ with your scroll wheel to meet the vibes and close out";
+    } else if (gameTimer.beatSum < SetDataList[6].beatEnd) {
+      TerminalTMP.text += "Comment on Itch if you want an encore!";
     }
-    */
+    TerminalTMP.text += '\n';
+    TerminalTMP.text += gameTimer.beatSum;
+    TerminalTMP.text += '\n';
+    TerminalTMP.text += gameTimer.beatLength;
   }
 }
 

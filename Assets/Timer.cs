@@ -17,7 +17,7 @@ public class Timer {
   public Timer() {
     timerOn = true;
     lastBeatTime = 0;
-    beatLength = 60 / Globals.BPM;
+    beatLength = 60.0f / Globals.BPM;
     beatSum = 0;
     wasLastFrameBeat = true;
   }
@@ -41,10 +41,11 @@ public class Timer {
         wasLastFrameBeat = false;
       } else {
         // PERFECT! this is a beat frame.
-        if (lastBeatTime > beatLength*beatSum) {
+        if (timeTotal > lastBeatTime + beatLength) {
           wasLastFrameBeat = true;
           beatSum += 1;
           retval = 0;
+          lastBeatTime = timeTotal; // If time is slowly slightly off fix this
         }
       }
       return retval;
